@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useMeasure, useAsync } from 'react-use'
+import { useKey } from 'react-use'
 import * as THREE from 'three'
 import useGLTF from '../../hooks/gtlf'
 
@@ -20,6 +21,9 @@ const Wrapper = styled.main`
 
 export default function Board() {
   const boardRef = useRef()
+
+  // Time scale
+  const [timeScale, setTimeScale] = useState(0)
 
   const [wrapperRef, { width, height }] = useMeasure()
 
@@ -51,8 +55,8 @@ export default function Board() {
     }
 
     const currentMixer = new THREE.AnimationMixer(gltf.scene)
-    for (var i = 0; i < gltf.animations.length; i++) {
-      var animation = gltf.animations[i]
+    for (let index = 0; index < gltf.animations.length; index++) {
+      const animation = gltf.animations[index]
       currentMixer.clipAction(animation).play()
     }
 
@@ -66,6 +70,11 @@ export default function Board() {
     currentRenderer.setPixelRatio(window.devicePixelRatio)
     return currentRenderer
   }, [])
+
+  // On press key
+  useKey('w', () => setTimeScale(1.2))
+  useKey('s', () => setTimeScale(0))
+  useKey('r', () => setTimeScale(1.8))
 
   // Responsive renderer
   useEffect(() => {
@@ -96,8 +105,9 @@ export default function Board() {
 
   // Animation
   const requestRef = useRef()
-  const animate = time => {
+  const animate = () => {
     if (mixer) {
+      mixer.timeScale = timeScale
       mixer.update(clock.getDelta() * mixer.timeScale)
     }
     if (renderer && scene && camera) {
@@ -108,7 +118,7 @@ export default function Board() {
   React.useEffect(() => {
     requestRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(requestRef.current)
-  }, [mixer, scene, camera, renderer])
+  }, [mixer, scene, camera, renderer, timeScale])
 
   return (
     <Wrapper ref={wrapperRef}>
