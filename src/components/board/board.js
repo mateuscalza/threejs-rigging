@@ -76,9 +76,10 @@ export default function Board() {
   }, [])
 
   // On press key
-  useKey('w', () => setTimeScale(1.2))
   useKey('s', () => setTimeScale(0))
+  useKey('w', () => setTimeScale(1.2))
   useKey('r', () => setTimeScale(1.8))
+  useKey('f', () => setTimeScale(3))
 
   // Responsive renderer
   useEffect(() => {
