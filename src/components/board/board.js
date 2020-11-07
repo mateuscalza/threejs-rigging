@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
-import { useMeasure } from 'react-use'
+import { useMeasure, useAsync } from 'react-use'
 import * as THREE from 'three'
+import useGLTF from '../../hooks/gtlf'
 
 const Wrapper = styled.main`
   position: relative;
@@ -19,15 +20,18 @@ const Wrapper = styled.main`
 
 export default function Board() {
   const boardRef = useRef()
+
   const [wrapperRef, { width, height }] = useMeasure()
+
   const camera = useMemo(() => {
     if (!width || !height) {
       return null
     }
-    const currentCamera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10)
-    currentCamera.position.z = 1
+    const currentCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000)
+    currentCamera.position.z = 8
     return currentCamera
   }, [width, height])
+
   const scene = useMemo(() => {
     const currentScene = new THREE.Scene()
 
@@ -38,7 +42,16 @@ export default function Board() {
     currentScene.add(mesh)
     return currentScene
   }, [])
-  const renderer = useMemo(() => new THREE.WebGLRenderer({ antialias: true }), [])
+
+  const gltf = useGLTF('/avatar.glb', scene)
+
+  const clock = useMemo(() => new THREE.Clock(), [])
+
+  const renderer = useMemo(() => {
+    const currentRenderer = new THREE.WebGLRenderer({ antialias: false })
+    currentRenderer.setPixelRatio(window.devicePixelRatio)
+    return currentRenderer
+  }, [])
 
   // Responsive renderer
   useEffect(() => {

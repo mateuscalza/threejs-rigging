@@ -41,5 +41,7 @@
     "**/.DS_Store": true
   },
   "postcss.validate": false,
-  "cSpell.words": []
+  "cSpell.words": [
+    "gtlf"
+  ]
 }
