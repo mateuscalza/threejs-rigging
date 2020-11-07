@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useKey, useMeasure } from 'react-use'
 import styled from 'styled-components'
-import { useMeasure, useAsync } from 'react-use'
-import { useKey } from 'react-use'
 import * as THREE from 'three'
 import useGLTF from '../../hooks/gtlf'
 
@@ -118,6 +117,7 @@ export default function Board() {
   React.useEffect(() => {
     requestRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(requestRef.current)
+    // eslint-disable-next-line
   }, [mixer, scene, camera, renderer, timeScale])
 
   return (
