@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useKey, useMeasure } from 'react-use'
 import styled from 'styled-components'
 import * as THREE from 'three'
@@ -104,7 +104,7 @@ export default function Board() {
 
   // Animation
   const requestRef = useRef()
-  const animate = () => {
+  const animate = useCallback(() => {
     if (mixer) {
       mixer.timeScale = timeScale
       mixer.update(clock.getDelta() * mixer.timeScale)
@@ -113,12 +113,11 @@ export default function Board() {
       renderer.render(scene, camera)
     }
     requestRef.current = requestAnimationFrame(animate)
-  }
+  }, [mixer, scene, camera, renderer, timeScale, clock])
   React.useEffect(() => {
     requestRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(requestRef.current)
-    // eslint-disable-next-line
-  }, [mixer, scene, camera, renderer, timeScale])
+  }, [animate, mixer, scene, camera, renderer, timeScale])
 
   return (
     <Wrapper ref={wrapperRef}>
