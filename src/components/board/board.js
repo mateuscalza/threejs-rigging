@@ -32,18 +32,32 @@ export default function Board() {
     return currentCamera
   }, [width, height])
 
+  const gltf = useGLTF('/avatar.glb')
+
   const scene = useMemo(() => {
+    if (!gltf) {
+      return null
+    }
+
     const currentScene = new THREE.Scene()
+    currentScene.add(gltf.scene)
 
-    const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
-    const material = new THREE.MeshNormalMaterial()
-
-    const mesh = new THREE.Mesh(geometry, material)
-    currentScene.add(mesh)
     return currentScene
-  }, [])
+  }, [gltf])
 
-  const gltf = useGLTF('/avatar.glb', scene)
+  const mixer = useMemo(() => {
+    if (!gltf || !gltf.animations || !gltf.animations.length) {
+      return null
+    }
+
+    const currentMixer = new THREE.AnimationMixer(gltf.scene)
+    for (var i = 0; i < gltf.animations.length; i++) {
+      var animation = gltf.animations[i]
+      currentMixer.clipAction(animation).play()
+    }
+
+    return currentMixer
+  }, [gltf])
 
   const clock = useMemo(() => new THREE.Clock(), [])
 
@@ -79,6 +93,22 @@ export default function Board() {
     }
     renderer.render(scene, camera)
   }, [renderer, camera, scene])
+
+  // Animation
+  const requestRef = useRef()
+  const animate = time => {
+    if (mixer) {
+      mixer.update(clock.getDelta() * mixer.timeScale)
+    }
+    if (renderer && scene && camera) {
+      renderer.render(scene, camera)
+    }
+    requestRef.current = requestAnimationFrame(animate)
+  }
+  React.useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(requestRef.current)
+  }, [mixer, scene, camera, renderer])
 
   return (
     <Wrapper ref={wrapperRef}>

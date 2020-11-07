@@ -4,7 +4,7 @@ import * as GLTF from 'three/examples/jsm/loaders/GLTFLoader'
 
 const loader = new GLTF.GLTFLoader()
 
-export default function useGLTF(url, scene) {
+export default function useGLTF(url) {
   const result = useAsync(
     () =>
       new Promise((resolve, reject) => {
@@ -28,15 +28,7 @@ export default function useGLTF(url, scene) {
             }
           })
 
-          scene.add(gltf.scene)
-
-          if (gltf.animations && gltf.animations.length) {
-            const mixer = new THREE.AnimationMixer(gltf.scene)
-            for (var i = 0; i < gltf.animations.length; i++) {
-              var animation = gltf.animations[i]
-              mixer.clipAction(animation).play()
-            }
-          }
+          resolve(gltf)
         }
 
         loader.load(url, handleSuccess, handleProgress, handleError)
@@ -44,5 +36,5 @@ export default function useGLTF(url, scene) {
     [],
   )
 
-  return result.value
+  return result.value || null
 }
