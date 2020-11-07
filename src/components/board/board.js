@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useKey, useMeasure } from 'react-use'
 import styled from 'styled-components'
 import * as THREE from 'three'
-import useGLTF from '../../hooks/gtlf'
+import useGLTF from '../../hooks/gltf'
 
 const Wrapper = styled.main`
   position: relative;
@@ -43,6 +43,11 @@ export default function Board() {
     }
 
     const currentScene = new THREE.Scene()
+    const box = new THREE.Box3().setFromObject(gltf.scene)
+    const center = box.getCenter(new THREE.Vector3())
+
+    gltf.scene.position.x = gltf.scene.position.x - center.x
+    gltf.scene.position.y = gltf.scene.position.y - center.y
     currentScene.add(gltf.scene)
 
     return currentScene
